@@ -34,9 +34,12 @@ def get_keys(loc):
 def write_data(loc, f):
     print("Building hdf5:")
     for key in get_keys(loc):
+        print(key)
         corrs = collect(loc, key+"*")
         dat = np.array([np.loadtxt(corr) for corr in corrs])
-        f.create_dataset(key, data=dat)
+        #f.create_dataset(key, data=dat) #compression='gzip', shuffle=True?
+        f.create_dataset(name='data/'+key, data=dat, 
+                         compression='gzip', shuffle=True)
         
 def main():
     f = h5py.File("mytestfile2.hdf5", "w")
@@ -49,9 +52,21 @@ def main():
 def test():
     with h5py.File('mytestfile2.hdf5', 'r') as f:
         print(f.keys())
-        k = list(f.keys())[0]
+        dat = f['data']
+        k = list(dat.keys())[0]
         print(k)
-        print(f[k][0])
+        print(dat[k][0])
+        print(len(list(dat.keys())))
+        
+        # Check nconf is the same for every correlator.
+        nconf = None
+        for key in dat.keys():
+            if not nconf:
+                nconf = len(dat[key])
+            print(len(dat[key]))
+            assert(len(dat[key]) == nconf)
+        print("Every key has {0} confs".format(nconf))
+
         #print(f["pi.m0.002426-m0.002426-p000.corr2pt"]) #_a001085"])
 
 if __name__ == "__main__":
