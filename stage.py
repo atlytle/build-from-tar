@@ -36,11 +36,10 @@ def transfer(src_root, bases, dest_root, _concurrent=False):
         # Copy and extract into temp directory 
         #(or extract directly, may be faster).
         print("Staging " + base)
-        subprocess.run(["mkdir", base])
-        #subprocess.run(["cp", "-a",  src, dest])
+        subprocess.run(["mkdir", dest])
         subprocess.run(['tar', 'xvjf', src, '-C', dest],
                         stdout=subprocess.DEVNULL)
-        #subprocess.run(['rm', tar])
+    
     if _concurrent:
         with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
             for base in bases:
