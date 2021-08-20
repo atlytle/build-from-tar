@@ -15,12 +15,14 @@ from timing import timing
 
 def collect(loc, _glob):
     "Filenames of form loc/glob."
-    res = subprocess.run(["ls"] + glob(loc+'/'+_glob), capture_output=True)
-    res = res.stdout.decode().split()
+    res = glob(loc+'/'+_glob, recursive=False)
     return res
 
 def get_keys(loc):
-    #c = collect(loc, "pi.*-p000.*")  # Assume this is present.
+    """Get the correlator keys in loc/.
+       
+    Obtains a configuration tag, then collects all the keys with that tag.
+    """
     c = collect(loc, "P5-P5*_p000_*")  # Assume this is present. 
     # ^ Fix bug if not ^
     #nconfs = len(c)
@@ -37,13 +39,11 @@ def write_data(loc, f):
         print(key)
         corrs = collect(loc, key+"*")
         dat = np.array([np.loadtxt(corr) for corr in corrs])
-        #f.create_dataset(key, data=dat) #compression='gzip', shuffle=True?
         f.create_dataset(name='data/'+key, data=dat, 
                          compression='gzip', shuffle=True)
         
 def main():
     f = h5py.File("mytestfile2.hdf5", "w")
-    #f.create_dataset("data", (100,), dtype='i')
 
     write_data("./loose2", f)
     

@@ -12,7 +12,7 @@ from timing import timing
 
 def main():
     src_root = './tar'  # Where Job*.tar.bz2 are stored.
-    tars = get_tars(src_root)[:10]  # Collect up tars.
+    tars = get_tars(src_root)[:2]  # Collect up tars.
     bases = [tar.rstrip('.tar.bz2') for tar in tars]
     stage_root = './stage'  # Where to untar Job*.tar.bz2.
 
@@ -28,7 +28,6 @@ def main():
         # e.g. dname = "Job100031_a001120/data/loose"
         dnames = [stage_root+'/'+d+'/data/loose' 
                   for d in get_dirs(stage_root) if "Job" in d]
-        print(dnames)
         write_all(dnames, _concurrent=True)
     
     # Remove untarred stuff.

@@ -7,7 +7,6 @@ import os
 import re
 import subprocess
 import sys
-from glob import glob
 from multiprocessing import Pool
 from time import time
 
@@ -60,10 +59,8 @@ def corr_key(lines):
         if REGEX.match(line):
             return line.strip().split()[-1]
 
-# v Is there a native version of this? v
 def get_dirs(loc):
-    res = subprocess.run(["ls", loc], capture_output=True)
-    dirs = res.stdout.decode().split()
+    dirs = os.listdir(loc)
     return dirs
 
 def traverse_rec(base, level):
@@ -99,18 +96,11 @@ def write_all(bases, _concurrent=False):
         for base in bases:
             _write_all(base)
 
-def remove_loose(base):
-    for d in traverse(base):
-        #print(d)
-        subprocess.run(["rm"] + glob(d+"/*.loose"))
-
 def main(argv):
     #base = "Job100031_a001120/data/loose"
     bases = [d+'/data/loose' for d in get_dirs('.') if "Job" in d]
 
     write_all(bases, _concurrent=True)
-    #for base in bases:
-    #    remove_loose(base)
     
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
