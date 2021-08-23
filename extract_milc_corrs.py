@@ -7,6 +7,7 @@ import os
 import re
 import subprocess
 import sys
+from itertools import product
 from multiprocessing import Pool
 from time import time
 
@@ -74,7 +75,7 @@ def traverse(base):
             #for f in get_dirs(base+'/'+d+'/'+d2):
             #    yield base+'/'+d+'/'+d2+'/'+f
     
-def _write_all(base):
+def _write_all(base, loc_root):
     "Write all (loose) correlators corresponding to base."
     for dir in get_dirs(base):
         for dir2 in get_dirs(base+'/'+dir):
@@ -84,17 +85,18 @@ def _write_all(base):
                 #corr = extract(loc+'/'+f)
                 #loc = './loose2/'+dir+'.'+dir2+'.'+f
                 conf_tag = f.split('_')[-1]  # e.g. a001155
-                loc = './loose2/'+corr_key+'_'+conf_tag
+                loc = loc_root+'/'+corr_key+'_'+conf_tag
                 np.savetxt(loc, corr)
 
-def write_all(bases, _concurrent=False):
+def write_all(bases, loc_root, _concurrent=False):
     if _concurrent:
         pool = Pool()
-        pool.map(_write_all, bases)
+        pool.starmap(_write_all, product(bases, [loc_root,]))
         pool.close()
     else:
         for base in bases:
-            _write_all(base)
+            print('Extracting data from '+base)
+            _write_all(base, loc_root)
 
 def main(argv):
     #base = "Job100031_a001120/data/loose"

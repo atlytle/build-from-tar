@@ -72,8 +72,9 @@ def main():
     tars = get_tars(src_root)[0:10]
     #print(tars)
     bases = [tar.rstrip('.tar.bz2') for tar in tars]
-    stage_root = '.'
+    stage_root = './stage'
     #_concurrent = True
+    extract_root = './loose'
     
     # Stage tarballs for processing.
     with timing():
@@ -84,7 +85,7 @@ def main():
     # in extract_milc_corrs.py should really do tsm.
     fnames = [d+'/data/loose' for d in get_dirs(stage_root) if "Job" in d]
     with timing():
-        write_all(fnames, _concurrent=True)
+        write_all(fnames, extract_root, _concurrent=True)
     
     # Remove untarred stuff.
     with timing():
