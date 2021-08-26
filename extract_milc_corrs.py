@@ -46,7 +46,7 @@ def real_part(lines):
 def extract(fname):
     with open(fname, 'r') as f:
         lines = f.readlines()
-    _corr_key = corr_key(lines)
+    _corr_key = corr_key(lines)  # Assumes only 1 unique per file.
     lines = remove_headers(lines)
     nums = np.array(list(map(real_part, lines)))
     return _corr_key, np.average(nums, axis=0)  # I think this averages over time sources..

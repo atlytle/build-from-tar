@@ -2,6 +2,9 @@
 # Andrew Lytle
 # Dec 2020
 
+"""Copy, untar, and remove directories for extracting correlator info.
+"""
+
 import concurrent.futures
 import os
 import subprocess
