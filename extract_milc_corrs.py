@@ -64,16 +64,12 @@ def get_dirs(loc):
     dirs = os.listdir(loc)
     return dirs
 
-def traverse_rec(base, level):
-    # General recurse thing
-    pass
-
 def traverse(base):
     for d in get_dirs(base):
         for d2 in get_dirs(base+'/'+d):
-            yield base+'/'+d+'/'+d2
-            #for f in get_dirs(base+'/'+d+'/'+d2):
-            #    yield base+'/'+d+'/'+d2+'/'+f
+            #yield base+'/'+d+'/'+d2
+            for f in get_dirs(base+'/'+d+'/'+d2):
+                yield base+'/'+d+'/'+d2+'/'+f
     
 def _write_all(base, loc_root):
     "Write all (loose) correlators corresponding to base."
@@ -87,6 +83,20 @@ def _write_all(base, loc_root):
                 conf_tag = f.split('_')[-1]  # e.g. a001155
                 loc = loc_root+'/'+corr_key+'_'+conf_tag
                 np.savetxt(loc, corr)
+
+def _write_all2(base, loc_root):
+    "Write all (loose) correlators corresponding to base."
+    #for dir in get_dirs(base):
+    #    for dir2 in get_dirs(base+'/'+dir):
+    #        for f in get_dirs(base+'/'+dir+'/'+dir2):
+    for f in traverse(base):
+        #loc = base+'/'+dir+'/'+dir2
+        #corr_key, corr = extract(loc+'/'+f)
+        corr_key, corr = extract(f)
+        conf_tag = f.split('_')[-1]  # e.g. a001155
+        loc = loc_root+'/'+corr_key+'_'+conf_tag
+        np.savetxt(loc, corr)
+
 
 def write_all(bases, loc_root, _concurrent=False):
     if _concurrent:
