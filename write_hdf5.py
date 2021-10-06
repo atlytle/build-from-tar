@@ -102,39 +102,6 @@ def test():
 
         #print(f["pi.m0.002426-m0.002426-p000.corr2pt"]) #_a001085"])
 
-def test2():
-    print('Ave corr from this build:')
-    with h5py.File('mytestfile_tsm.hdf5', 'r') as f:
-        dat = f['data']
-        k = list(dat.keys())[0]
-        print(k)
-        #print(dat[k])
-        #print(dat[k][0])
-        print(np.mean(dat[k], axis=0))
-    
-    print()
-    print('From l3248f211b580m002426m06730m8447-allHISQ-run2.hdf5:')
-    t = '/project/fermilab/heavylight/hisq/db/allHISQ/a0.15/'
-    t += 'l3248f211b580m002426m06730m8447-allHISQ-run2.hdf5'
-    with h5py.File(t, 'r') as f:
-        dat = f['data']
-        #k = list(dat.keys())[0]
-        k = k.rstrip('-loose')
-        print(k)
-        #print(dat[k])
-        #print(dat[k][0])
-        print(np.mean(dat[k], axis=0))
-        '''
-        for i in range(len(dat[k])):
-            #print(dat[k][i][0])
-            print(dat[k][i][0] - -1.91242283e-01)
-            if str(dat[k][i][0]) == '-1.91242283e-01':
-                print(k)
-                print("!!!")
-                print(i)
-        '''
-        #print(dat[k][6])
-
 if __name__ == "__main__":
     with timing():
         #main()

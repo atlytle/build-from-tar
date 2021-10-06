@@ -12,22 +12,23 @@ from write_hdf5 import write_data
 
 from timing import timing
 
-def _build_by_base(src_root, stage_root, extract_root, base):
+def _build_by_base(src_root, stage_root, extract_root, T, base):
     transfer(src_root, [base,], stage_root, _concurrent=False)
-    dname = stage_root+'/'+base+'/data/loose'
-    write_all([dname,], extract_root, _concurrent=False)
+    #dname = stage_root+'/'+base+'/data/loose'
+    dname = stage_root+'/'+base+'/data'
+    write_all([dname,], extract_root, T, _concurrent=False)
     cleanup([base,], stage_root, _concurrent=False)
 
-def build_by_base(src_root, stage_root, extract_root, 
+def build_by_base(src_root, stage_root, extract_root, T, 
                   bases, _concurrent=False):
     if _concurrent:
-        pool = Pool(8)  # Hard-code 8 processes.
-        args = product([src_root,], [stage_root,], [extract_root,], bases)
+        pool = Pool(_concurrent)  # _concurrent = number of processes.
+        args = product([src_root,], [stage_root,], [extract_root,], [T,], bases)
         pool.starmap(_build_by_base, args)
         pool.close()
     else:
         for base in bases:
-            _build_by_base(src_root, stage_root, extract_root, base)
+            _build_by_base(src_root, stage_root, extract_root, T, base)
 
 def main():
     src_root = './tar'  # Where Job*.tar.bz2 are stored.

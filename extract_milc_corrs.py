@@ -17,7 +17,7 @@ sys.path.append(os.environ['HOME'] + '/allhisq')
 from timing import timing
 
 REGEX = re.compile('correlator_key:')  # Pattern signaling end of header.
-T = 48
+#T = 48
 
 def sort_argv(argv):
     "Sort arguments in *.*.cfg_tsrc_* by cfg then src."
@@ -30,7 +30,7 @@ def sort_argv(argv):
 
     return sorted(argv, key=sort_fun)
 
-def remove_headers(lines):
+def remove_headers(lines, T):
     "Lines corresponding to correlation functions."
     result = []
     for i, line in enumerate(lines):
@@ -43,11 +43,11 @@ def real_part(lines):
     "Real part of correlation functions."
     return [float(line.split()[1]) for line in lines]
 
-def extract(fname):
+def extract(fname, T):
     with open(fname, 'r') as f:
         lines = f.readlines()
     _corr_key = corr_key(lines)  # Assumes only 1 unique per file.
-    lines = remove_headers(lines)
+    lines = remove_headers(lines, T)
     nums = np.array(list(map(real_part, lines)))
     return _corr_key, np.average(nums, axis=0)  # I think this averages over time sources..
 
@@ -71,20 +71,20 @@ def traverse(base):
             for f in get_dirs(base+'/'+d+'/'+d2):
                 yield base+'/'+d+'/'+d2+'/'+f
     
-def _write_all(base, loc_root):
+def _write_all(base, loc_root, T):
     "Write all (loose) correlators corresponding to base."
     for dir in get_dirs(base):
         for dir2 in get_dirs(base+'/'+dir):
             for f in get_dirs(base+'/'+dir+'/'+dir2):
                 loc = base+'/'+dir+'/'+dir2
-                corr_key, corr = extract(loc+'/'+f)
+                corr_key, corr = extract(loc+'/'+f, T)
                 #corr = extract(loc+'/'+f)
                 #loc = './loose2/'+dir+'.'+dir2+'.'+f
                 conf_tag = f.split('_')[-1]  # e.g. a001155
                 loc = loc_root+'/'+corr_key+'_'+conf_tag
                 np.savetxt(loc, corr)
 
-def _write_all2(base, loc_root):
+def _write_all2(base, loc_root, T):
     "Write all (loose) correlators corresponding to base."
     #for dir in get_dirs(base):
     #    for dir2 in get_dirs(base+'/'+dir):
@@ -92,21 +92,21 @@ def _write_all2(base, loc_root):
     for f in traverse(base):
         #loc = base+'/'+dir+'/'+dir2
         #corr_key, corr = extract(loc+'/'+f)
-        corr_key, corr = extract(f)
+        corr_key, corr = extract(f, T)
         conf_tag = f.split('_')[-1]  # e.g. a001155
         loc = loc_root+'/'+corr_key+'_'+conf_tag
         np.savetxt(loc, corr)
 
 
-def write_all(bases, loc_root, _concurrent=False):
+def write_all(bases, loc_root, T, _concurrent=False):
     if _concurrent:
-        pool = Pool()
-        pool.starmap(_write_all, product(bases, [loc_root,]))
+        pool = Pool(_concurrent)
+        pool.starmap(_write_all, product(bases, [loc_root,], [T,]))
         pool.close()
     else:
         for base in bases:
             print('Extracting data from '+base)
-            _write_all(base, loc_root)
+            _write_all(base, loc_root, T)
 
 def main(argv):
     #base = "Job100031_a001120/data/loose"
