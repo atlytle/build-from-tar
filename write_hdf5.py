@@ -47,17 +47,31 @@ def get_keys2(loc):
     #nkeys = len(keys)
     return keys
 
+def get_keys_tsrcs(loc):
+    c = collect(loc, "P5-P5*_p000*")  # Assume this is present. 
+    # ^ Fix bug if not ^
+    #nconfs = len(c)
+    conf_tag = c[0].split('_')[-1]  # Get a configuration tag.
+    src_tag = c[0].split('_')[-2]  # Get a source tag.
+    get_key = lambda path: '_'.join(os.path.basename(path).split('_')[:-2])
+    get_tsrc = lambda path: path.split('_')[-2]
+    keys = [get_key(c) for c in collect(loc, "*_"+src_tag+'_'+conf_tag)]
+    tsrcs = [get_tsrc(c) for c in collect(loc, keys[0]+'*_'+conf_tag)]
+    #nkeys = len(keys)
+    return keys, tsrcs
+
+
 #may want to structure "./loose" better to avoid large 'ls's.
-def write_data(loc, f):
+def write_data(loc, f, T):
     print("Building hdf5:")
     for key in get_keys(loc):
         print(key)
-        corrs = collect(loc, key+"*")
+        corrs = sorted(collect(loc, key+"*"))
+        #print(corrs)
         dat = np.array([np.loadtxt(corr) for corr in corrs])
-        f.create_dataset(name='data/'+key, data=dat, 
+        f.create_dataset(name='data/'+key, data=dat, maxshape=(None, T),
                          compression='gzip', shuffle=True)
         for path in glob(loc+'/'+key+"*", recursive=False):
-            #print(path)
             os.remove(path)
    
     '''
