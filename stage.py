@@ -16,16 +16,30 @@ from extract_milc_corrs import get_dirs, write_all
 from timing import timing
 
 
-def get_tars(loc):
+def get_tars(loc, by_cfg=False):
     res = subprocess.run(["ls", loc], capture_output=True)
     res = res.stdout.decode().split()
     tars = [r for r in res if ("Job" in r) and (".tar.bz2" in r)]
+    
+    def get_cnfg(tar):
+        "Job##_F##_a##.tar.bz2 -> a##"
+        return tar.split('_')[-1].split('.')[0]
+    if by_cfg:
+        cnfgs = list(set(map(get_cnfg, tars)))
+        print('cnfgs:', cnfgs)
+        res = {cfg:[] for cfg in cnfgs}
+        for cfg in cnfgs:
+            res[cfg] = [tar for tar in tars if cfg in tar]
+            #res.append([tar for tar in tars if cfg in tar])
+        return res
+    else:
+        return tars
     #check = [r for r in res if ("Job" in r) and (".tar.bz2" in r)]
     #try:
     #    assert len(res) == len(check)
     #except AssertionError:
     #    raise Exception("File(s) in {0} not of form Job*.tar.bz2".format(loc))
-    return tars
+    #return tars
 
 def transfer(src_root, bases, dest_root, _concurrent=False):
     "Untar src_root/base.tar.bz2 into dest_root/base for base in bases."
