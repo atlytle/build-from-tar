@@ -11,7 +11,7 @@ from extract_milc_corrs import get_dirs, extract, corr_key, real_part
 
 REGEX = re.compile('correlator_key:')  # Pattern signaling end of header.
 REGEX_TSRC = re.compile('quark_source_origin:')
-T = 48
+#T = 48
 
 def to_nums(lines):
     return np.array(list(map(real_part, lines)))
@@ -40,7 +40,7 @@ def parse_tsrc(line):
     return res
 # note getting tsrc needs only happen once per Job.. not every file necc.
 
-def extract_with_tsrc(fname):
+def extract_with_tsrc(fname, T):
     with open(fname, 'r') as f:
         lines = f.readlines()
     _corr_key = corr_key(lines)
@@ -57,9 +57,9 @@ def extract_with_tsrc(fname):
     #print(result)
     return _corr_key, result
 
-def extract_with_tsm(lname, fname):
-    lcorr_key, lcorr = extract_with_tsrc(lname)
-    fcorr_key, fcorr = extract_with_tsrc(fname)
+def extract_with_tsm(lname, fname, T):
+    lcorr_key, lcorr = extract_with_tsrc(lname, T)
+    fcorr_key, fcorr = extract_with_tsrc(fname, T)
     #print(lcorr_key)
     #print(fcorr_key)
     #assert(lcorr_key.rstrip('-loose') == fcorr_key.rstrip('-fine'))
@@ -90,9 +90,9 @@ def do_tsm(lcorr, fcorr, tsm=True):
         res = lave
     return ckey.rstrip('-loose'), res
 
-def write_w_tsm(stage_root, extract_root, base):
+def write_w_tsm(stage_root, extract_root, T, base):
     for lname, fname in get_tsm_dirs(stage_root, base):
-        lcorr, fcorr = extract_with_tsm(lname, fname)
+        lcorr, fcorr = extract_with_tsm(lname, fname, T)
         ckey, res = do_tsm(lcorr, fcorr)
         conf_tag = fname.split('_')[-1]  # e.g. a001155
         loc = extract_root+'/'+ckey+'_'+conf_tag
