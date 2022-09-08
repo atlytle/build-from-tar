@@ -9,7 +9,6 @@ import concurrent.futures
 import os
 import subprocess
 import sys
-sys.path.append(os.environ['HOME'] + '/allhisq')
 import time
 
 from extract_milc_corrs import get_dirs, write_all

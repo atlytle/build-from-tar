@@ -13,9 +13,6 @@ from time import time
 
 import numpy as np
 
-sys.path.append(os.environ['HOME'] + '/allhisq')
-from timing import timing
-
 REGEX = re.compile('correlator_key:')  # Pattern signaling end of header.
 #T = 48
 

@@ -6,7 +6,6 @@ import os
 from glob import glob
 import subprocess
 import sys
-sys.path.append(os.environ['HOME'] + '/allhisq')
 
 import h5py
 import numpy as np
