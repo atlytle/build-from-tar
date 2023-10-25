@@ -28,11 +28,9 @@ def merge_hdf5(fname1, fname2, fmerge):
     with h5py.File(fname2, "r") as f2:
         d2 = f2['data']
         keys2 = list(d2.keys())
-        shape2 = d2[keys2[0]].shape
         with h5py.File(fname1, "r") as f1:
             d1 = f1['data']
             keys1 = list(d1.keys())
-            shape1 = d1[keys1[0]].shape
 
             print(len(keys2))
             print(len(keys1))
@@ -41,7 +39,6 @@ def merge_hdf5(fname1, fname2, fmerge):
             with h5py.File(fmerge, 'w') as f:
                 # We want to ensure keys are the same for both hdf5 files...
                 for key in keys1:
-                    snew = shape1[0]+shape2[0]
                     print(d1[key])
                     print(d2[key])
                     test = np.append(d1[key][:], d2[key][:], axis=0)
@@ -49,8 +46,7 @@ def merge_hdf5(fname1, fname2, fmerge):
                     print(test.shape)
                     f.create_dataset(name='data/'+key, 
                              data = np.append(d1[key][:], d2[key][:], axis=0),
-                             shape=(snew, 288), 
-                             #maxshape=(None, 144), 
+                             shape = test.shape,
                              compression='gzip', 
                              shuffle=True)
             #f['data/'+key][:,:] = d1[key][:].append(d2[key][:])
