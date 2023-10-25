@@ -17,13 +17,15 @@ def collect(loc, _glob):
     res = glob(loc+'/'+_glob, recursive=False)
     return res
 
-def get_keys(loc):
+def get_keys(loc, _glob="P5-P5*_p000*"):
     """Get the correlator keys in loc/.
        
     Obtains a configuration tag, then collects all the keys with that tag.
     """
     #c = collect(loc, "P5-P5*_p000_*")  # Assume this is present. 
-    c = collect(loc, "P5-P5*_p000*")  # Assume this is present. 
+    ###c = collect(loc, "P5-P5*_p000*")  # Assume this is present.
+    c = collect(loc, _glob)  # Assume name matching _glob is present.
+    print(f"{c = }")
     # ^ Fix bug if not ^
     #nconfs = len(c)
     conf_tag = c[0].split('_')[-1]  # Get a configuration tag.
@@ -61,12 +63,12 @@ def get_keys_tsrcs(loc):
 
 
 #may want to structure "./loose" better to avoid large 'ls's.
-def write_data(loc, f, T):
+def write_data(loc, f, T, _glob="P5-P5*_p000*"):
     print("Building hdf5:")
-    for key in get_keys(loc):
+    for key in get_keys(loc, _glob=_glob):
         print(key)
         corrs = sorted(collect(loc, key+"*"))
-        #print(corrs)
+        print(corrs)
         dat = np.array([np.loadtxt(corr) for corr in corrs])
         f.create_dataset(name='data/'+key, data=dat, maxshape=(None, T),
                          compression='gzip', shuffle=True)
