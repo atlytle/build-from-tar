@@ -11,7 +11,7 @@ import subprocess
 import sys
 import time
 
-from extract_milc_corrs import get_dirs, write_all
+#from extract_milc_corrs import get_dirs, write_all
 from timing import timing
 
 
@@ -79,6 +79,17 @@ def cleanup(bases, dest_root, _concurrent=False):
     else:
         for base in bases:
             _cleanup(base, dest_root)
+
+def filter_tars(tars, cfgs, nsrc):
+    "Collect tars in cfgs with nsrc sources (i.e. completed configs)."
+    # Gather up only completed configurations in cfgs.
+    for cfg in list(tars.keys()):
+        if len(tars[cfg]) != nsrc:
+            tars.pop(cfg)  # Throw these out.
+            continue
+        if cfg not in cfgs:
+            tars.pop(cfg)
+    return tars
 
 def main():
     #root = "/project/fermilab/heavylight/hisq/allHISQ"
