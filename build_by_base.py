@@ -3,28 +3,30 @@
 # Aug 2021
 
 import h5py
+import os
 import sys
 from itertools import product
 from multiprocessing import Pool
+import numpy as np
 
 #from extract_milc_corrs import get_dirs, write_all
 
 sys.path.append('/lustre1/heavylight/atlytle/build-from-src')
 from extract_milc_corrs import get_dirs
-from extract_milc_corrs import write_all3 as write_all
+from extract_milc_corrs import write_all3, write_all_witht
 from stage import get_tars, transfer, cleanup
 from write_hdf5 import write_data, get_keys_tsrcs
 
 from timing import timing
 
-def _build_by_base(src_root, stage_root, extract_root, T, base):
+def _build_by_base3(src_root, stage_root, extract_root, T, base):
     transfer(src_root, [base,], stage_root, _concurrent=False)
     #dname = stage_root+'/'+base+'/data/loose'
     dname = stage_root+'/'+base+'/data'
-    write_all([dname,], extract_root, T, _concurrent=False)
+    write_all3([dname,], extract_root, T, _concurrent=False)
     cleanup([base,], stage_root, _concurrent=False)
 
-def build_by_base(src_root, stage_root, extract_root, T, 
+def build_by_base3(src_root, stage_root, extract_root, T, 
                   bases, _concurrent=False):
     if _concurrent:
         pool = Pool(_concurrent)  # _concurrent = number of processes.
@@ -34,6 +36,24 @@ def build_by_base(src_root, stage_root, extract_root, T,
     else:
         for base in bases:
             _build_by_base(src_root, stage_root, extract_root, T, base)
+
+def _build_by_base_witht(src_root, stage_root, extract_root, T, base):
+    transfer(src_root, [base,], stage_root, _concurrent=False)
+    #dname = stage_root+'/'+base+'/data/loose'
+    dname = stage_root+'/'+base+'/data'
+    write_all_witht([dname,], extract_root, T, _concurrent=False)
+    cleanup([base,], stage_root, _concurrent=False)
+
+def build_by_base_witht(src_root, stage_root, extract_root, T, 
+                  bases, _concurrent=False):
+    if _concurrent:
+        pool = Pool(_concurrent)  # _concurrent = number of processes.
+        args = product([src_root,], [stage_root,], [extract_root,], [T,], bases)
+        pool.starmap(_build_by_base, args)
+        pool.close()
+    else:
+        for base in bases:
+            _build_by_base_witht(src_root, stage_root, extract_root, T, base)
 
 def _consolidate_tsrc(extract_root, ave_root, cfg, key, tsrcs):
     print(key)

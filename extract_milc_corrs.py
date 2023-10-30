@@ -85,7 +85,7 @@ def corr_key(lines):
         if REGEX.match(line):
             return line.strip().split()[-1]
 
-def extract_all(fname, T):
+def extract_all3(fname, T):
     """Extract all correlator keys and correlator data from milc output file.
     
     extract(fname, T) only obtains the first correlator in the output,
@@ -106,6 +106,35 @@ def extract_all(fname, T):
             # nb: np.average([[1,2,3],[5,6,7]], axis=0) = np.array([3.,4.,5.]) 
             # (changes shape, so ave([[1,2,3],], axis=0) = [1,2,3])
             corr[corr_key] = np.average(nums, axis=0)
+    return corr
+    
+def extract_all_witht(fname, T):
+    """Extract all correlator keys and correlator data from milc output file.
+    
+    extract(fname, T) only obtains the first correlator in the output,
+    this version gets all of them. 
+    NOTE here there are multiple tsrc values in a single file, and this
+    averages over them.
+    """
+    corr = {}  # Store correlators in a dictionary.
+    with open(fname, 'r') as f:
+        lines = f.readlines()
+
+    for i, line in enumerate(lines[:]):
+        if REGEX.match(line):
+            corr_key = line.strip().split()[-1]
+            if corr_key not in corr:
+                corr[corr_key] = []
+            # Skip "..." line after the match.
+            data = lines[i+2:i+2+T]
+            ri_part = process(corr_key)  # Which part of corr to get.
+            nums = np.array(list(map(ri_part, [data,])))[0]
+            print(f"{nums = }")
+            corr[corr_key].append(nums)
+
+    for corr_key in corr:
+        corr[corr_key] = np.average(corr[corr_key], axis=0)
+
     return corr
 
 def get_dirs(loc):
@@ -142,7 +171,7 @@ def _write_all3(base, loc_root, T):
                 loc = base+'/'+dir+'/'+dir2
                 conf_tag = f.split('_')[-1]  # e.g. a001155
                 src_tag = base.split('_')[-2]  # e.g. F027
-                corrs = extract_all(loc+'/'+f, T)
+                corrs = extract_all3(loc+'/'+f, T)
                 for corr_key in corrs:
                     loc = loc_root+'/'+corr_key+'_'+src_tag+'_'+conf_tag
                     #if corr_key.startswith('P5-P5_S-S') or \
@@ -172,6 +201,31 @@ def write_all3(bases, loc_root, T, _concurrent=False):
         for base in bases:
             print('Extracting data from '+base)
             _write_all3(base, loc_root, T)
+
+def _write_all_witht(base, loc_root, T):
+    "Write all correlators corresponding to base. Uses extract_all_witht()."
+    for dir in get_dirs(base):
+        for dir2 in get_dirs(base+'/'+dir):
+            for f in get_dirs(base+'/'+dir+'/'+dir2):
+                loc = base+'/'+dir+'/'+dir2
+                conf_tag = f.split('_')[-1]  # e.g. a001155
+                #src_tag = base.split('_')[-2]  # e.g. F027
+                corrs = extract_all_witht(loc+'/'+f, T)
+                print(f"{loc = }")
+                print(f"{corrs = }")
+                for corr_key in corrs:
+                    loc = loc_root+'/'+corr_key+'_'+conf_tag
+                    np.savetxt(loc, corrs[corr_key])
+
+def write_all_witht(bases, loc_root, T, _concurrent=False):
+    if _concurrent:
+        pool = Pool(_concurrent)
+        pool.starmap(_write_all_witht, product(bases, [loc_root,], [T,]))
+        pool.close()
+    else:
+        for base in bases:
+            print('Extracting data from '+base)
+            _write_all_witht(base, loc_root, T)
 
 def main(argv):
     #base = "Job100031_a001120/data/loose"
