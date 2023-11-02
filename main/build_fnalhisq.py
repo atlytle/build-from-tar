@@ -16,53 +16,11 @@ print(sys.path)
 from build_by_base import build_by_base_witht
 from init import read_yaml, bind_params, init_dirs
 from rename_dat import rename
-from stage import get_tars
+from stage import get_tars, filter_tars
 from timing import timing, Write_print
 from write_hdf5 import write_data
 from write_hdf5 import get_keys, get_keys_tsrcs
 
-def _consolidate_tsrc(extract_root, ave_root, cfg, key, tsrcs):
-    print(key)
-    cname = lambda key, tsrc: extract_root+'/'+key+'_'+tsrc+'_'+cfg
-    dat = np.array([np.loadtxt(cname(key,t)) for t in tsrcs])
-    dat = np.average(dat, axis=0)
-    for t in tsrcs:
-        os.remove(cname(key, t))
-    np.savetxt(ave_root+'/'+key+'_'+cfg, dat)
-
-
-def consolidate_tsrc(extract_root, ave_root, cfg, _concurrent=False):
-    keys, tsrcs = get_keys_tsrcs(extract_root)
-    print(f"{len(keys) = }")
-    #cname = lambda key, tsrc: extract_root+'/'+key+'_'+tsrc+'_'+cfg
-    if _concurrent:
-        pool = Pool(_concurrent)  # _concurrent = number of processes.
-        args = product([extract_root,], [ave_root,], [cfg,], keys, [tsrcs,])
-        pool.starmap(_consolidate_tsrc, args)
-        pool.close()
-    else:
-        i=0
-        for key in keys:
-            i+=1
-            print(i)
-            _consolidate_tsrc(extract_root, ave_root, cfg, key, tsrcs)
-        #dat = np.array([np.loadtxt(cname(key,t)) for t in tsrcs])
-        #dat = np.average(dat, axis=0)
-        #for t in tsrcs:
-        #    os.remove(cname(key, t))
-        #np.savetxt(ave_root+'/'+key+'_'+cfg, dat)
-
-def filter_tars(tars, cfgs, nsrc):
-    "Collect tars in cfgs with nsrc sources (i.e. completed configs)."
-    # Gather up only completed configurations in cfgs.
-    for cfg in list(tars.keys()):
-        #if len(tars[cfg]) != nsrc:
-        #    tars.pop(cfg)  # Throw these out.
-        #    continue
-        if cfg not in cfgs:
-            tars.pop(cfg)
-    return tars
-    
 def main(argv):
     params = read_yaml(argv[0])  # Read input yaml.
     
