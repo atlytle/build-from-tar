@@ -31,7 +31,7 @@ def build_by_base3(src_root, stage_root, extract_root, T,
     if _concurrent:
         pool = Pool(_concurrent)  # _concurrent = number of processes.
         args = product([src_root,], [stage_root,], [extract_root,], [T,], bases)
-        pool.starmap(_build_by_base, args)
+        pool.starmap(_build_by_base3, args)
         pool.close()
     else:
         for base in bases:
