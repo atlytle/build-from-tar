@@ -1,0 +1,16 @@
+src_root: "/project/fermilab/heavylight/hisq/allHISQ\
+           /a0.03/l96288f211b728m00223m01115m1316/run1/frontera/tar"
+#src_root: "/lustre1/heavylight/detar/allHISQ\
+#           /l96288f211b728m00223m01115m1316/run1/frontera"
+stage_root: /tmp/stage
+extract_root: /tmp/extract
+ave_root: /tmp/ave
+h5name: ./l96288a_4740-4746_2cfgs-new.hdf5
+log: ./l96288a_4740-4746_2cfgs-new.log
+T: 288
+concurrent: 8
+nsrc: 24
+stream: a
+start: 4740
+end: 4746
+delta: 6
