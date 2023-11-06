@@ -11,8 +11,7 @@ import subprocess
 import sys
 import time
 
-#from extract_milc_corrs import get_dirs, write_all
-from timing import timing
+from build_from_tar.timing import timing
 
 
 def get_tars(loc, by_cfg=False):

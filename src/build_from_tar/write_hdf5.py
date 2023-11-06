@@ -10,7 +10,7 @@ import sys
 import h5py
 import numpy as np
 
-from timing import timing
+from build_from_tar.timing import timing
 
 def collect(loc, _glob):
     "Filenames of form loc/glob."

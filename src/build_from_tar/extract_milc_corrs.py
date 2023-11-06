@@ -13,8 +13,7 @@ from time import time
 
 import numpy as np
 
-sys.path.append('/lustre1/heavylight/atlytle/build-from-src')
-from timing import timing
+from build_from_tar.timing import timing
 
 REGEX = re.compile('correlator_key:')  # Pattern signaling end of header.
 

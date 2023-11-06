@@ -11,15 +11,13 @@ import numpy as np
 from itertools import product
 from multiprocessing import Pool
 
-sys.path.append('/lustre1/heavylight/atlytle/build-from-src')
-print(sys.path)
-from build_by_base import build_by_base_witht
-from init import read_yaml, bind_params, init_dirs
-from rename_dat import rename
-from stage import get_tars, filter_tars
-from timing import timing, Write_print
-from write_hdf5 import write_data
-from write_hdf5 import get_keys, get_keys_tsrcs
+from build_from_tar.build_by_base import build_by_base_witht
+from build_from_tar.init import read_yaml, bind_params, init_dirs
+from build_from_tar.rename_dat import rename
+from build_from_tar.stage import get_tars, filter_tars
+from build_from_tar.timing import timing, Write_print
+from build_from_tar.write_hdf5 import write_data
+from build_from_tar.write_hdf5 import get_keys, get_keys_tsrcs
 
 def main(argv):
     params = read_yaml(argv[0])  # Read input yaml.
