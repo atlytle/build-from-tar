@@ -1,4 +1,6 @@
 *.pyc
+**/__pycache__/
 BUILDS/*
 cluster/*
 dat/*
+*egg-info/

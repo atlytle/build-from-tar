@@ -1,0 +1,24 @@
+[project]
+name = "build_from_tar"
+version = "2023.11.06"
+description = "Build hdf5 correlator caches from source tar files."
+readme = "README.md"
+authors = [
+    {name = "Andrew Lytle", email="atlytle@illinois.edu"},
+]
+dependencies = [
+]
+license = {file = "LICENSE.txt"}
+
+[project.urls]
+"Homepage" = "https://github.com/atlytle/build-from-tar"
+
+[build-system]
+requires = ["setuptools >= 61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = "src"

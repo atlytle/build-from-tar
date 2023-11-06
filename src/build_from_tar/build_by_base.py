@@ -9,15 +9,13 @@ from itertools import product
 from multiprocessing import Pool
 import numpy as np
 
-#from extract_milc_corrs import get_dirs, write_all
 
-sys.path.append('/lustre1/heavylight/atlytle/build-from-src')
-from extract_milc_corrs import get_dirs
-from extract_milc_corrs import write_all3, write_all_witht
-from stage import get_tars, transfer, cleanup
-from write_hdf5 import write_data, get_keys_tsrcs
+from build_from_tar.extract_milc_corrs import get_dirs
+from build_from_tar.extract_milc_corrs import write_all3, write_all_witht
+from build_from_tar.stage import get_tars, transfer, cleanup
+from build_from_tar.write_hdf5 import write_data, get_keys_tsrcs
 
-from timing import timing
+from build_from_tar.timing import timing
 
 def _build_by_base3(src_root, stage_root, extract_root, T, base):
     transfer(src_root, [base,], stage_root, _concurrent=False)
