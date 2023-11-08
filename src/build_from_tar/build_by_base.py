@@ -33,7 +33,7 @@ def build_by_base3(src_root, stage_root, extract_root, T,
         pool.close()
     else:
         for base in bases:
-            _build_by_base(src_root, stage_root, extract_root, T, base)
+            _build_by_base3(src_root, stage_root, extract_root, T, base)
 
 def _build_by_base_witht(src_root, stage_root, extract_root, T, base):
     transfer(src_root, [base,], stage_root, _concurrent=False)
@@ -47,7 +47,7 @@ def build_by_base_witht(src_root, stage_root, extract_root, T,
     if _concurrent:
         pool = Pool(_concurrent)  # _concurrent = number of processes.
         args = product([src_root,], [stage_root,], [extract_root,], [T,], bases)
-        pool.starmap(_build_by_base, args)
+        pool.starmap(_build_by_base_witht, args)
         pool.close()
     else:
         for base in bases:
