@@ -9,6 +9,7 @@ import sys
 
 import h5py
 import numpy as np
+import re
 
 from build_from_tar.timing import timing
 
@@ -19,10 +20,10 @@ def collect(loc, _glob):
 
 def get_keys(loc, _glob="P5-P5*_p000*"):
     """Get the correlator keys in loc/.
-       
+
     Obtains a configuration tag, then collects all the keys with that tag.
     """
-    #c = collect(loc, "P5-P5*_p000_*")  # Assume this is present. 
+    #c = collect(loc, "P5-P5*_p000_*")  # Assume this is present.
     ###c = collect(loc, "P5-P5*_p000*")  # Assume this is present.
     c = collect(loc, _glob)  # Assume name matching _glob is present.
     print(f"{c = }")
@@ -36,10 +37,10 @@ def get_keys(loc, _glob="P5-P5*_p000*"):
 
 def get_keys2(loc):
     """Get the correlator keys in loc/.
-       
+
     Obtains a configuration tag, then collects all the keys with that tag.
     """
-    c = collect(loc, "P5-P5*")  # Assume this is present. 
+    c = collect(loc, "P5-P5*")  # Assume this is present.
     # ^ Fix bug if not ^
     #nconfs = len(c)
     conf_tag = c[0].split('_')[-1]  # Get a configuration tag.
@@ -49,7 +50,7 @@ def get_keys2(loc):
     return keys
 
 def get_keys_tsrcs(loc):
-    c = collect(loc, "P5-P5*_p000*")  # Assume this is present. 
+    c = collect(loc, "P5-P5*_p000*")  # Assume this is present.
     # ^ Fix bug if not ^
     #nconfs = len(c)
     conf_tag = c[0].split('_')[-1]  # Get a configuration tag.
@@ -64,17 +65,31 @@ def get_keys_tsrcs(loc):
 
 #may want to structure "./loose" better to avoid large 'ls's.
 def write_data(loc, f, T, _glob="P5-P5*_p000*"):
+    series_traj = re.compile(r"(.+)_([a-z])(\d+)$")
     print("Building hdf5:")
     for key in get_keys(loc, _glob=_glob):
         print(key)
         corrs = sorted(collect(loc, key+"*"))
-        print(corrs)
         dat = np.array([np.loadtxt(corr) for corr in corrs])
-        f.create_dataset(name='data/'+key, data=dat, maxshape=(None, T),
-                         compression='gzip', shuffle=True)
+
+        # Infer the series and trajectory from the correlator name
+        series, traj = [], []
+        for corr in corrs:
+            match = series_traj.match(corr)
+            if match:
+                _, series_i, traj_i = match.groups()
+                series.append(series_i)
+                traj.append(int(traj_i))
+            else:
+                raise ValueError("Failed to extract series and trajectory", corr)
+
+        dset = f.create_dataset(name='data/'+key, data=dat, maxshape=(None, T),
+                                compression='gzip', shuffle=True)
+        dset.attrs['series'] = series
+        dset.attrs['trajectory'] = traj
         for path in glob(loc+'/'+key+"*", recursive=False):
             os.remove(path)
-   
+
     '''
     # Here this is picking up correlators unique to the 'b' stream.
     # You should improve get_keys() so it picks up all unique keys.
@@ -82,7 +97,7 @@ def write_data(loc, f, T, _glob="P5-P5*_p000*"):
         print(key)
         corrs = collect(loc, key+"*")
         dat = np.array([np.loadtxt(corr) for corr in corrs])
-        f.create_dataset(name='data/'+key, data=dat, 
+        f.create_dataset(name='data/'+key, data=dat,
                          compression='gzip', shuffle=True)
         for path in glob(loc+'/'+key+"*", recursive=False):
             #print(path)
@@ -93,7 +108,7 @@ def main():
     f = h5py.File("mytestfile2.hdf5", "w")
 
     write_data("./loose2", f)
-    
+
     f.close()
 
 def test():
@@ -104,7 +119,7 @@ def test():
         print(k)
         print(dat[k][0])
         print(len(list(dat.keys())))
-        
+
         # Check nconf is the same for every correlator.
         nconf = None
         for key in dat.keys():
