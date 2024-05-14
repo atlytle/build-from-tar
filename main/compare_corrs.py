@@ -13,19 +13,23 @@ def get_dat(h5fname):
     f = h5py.File(h5fname)
     return f['data']
 
-d1 = get_dat('l4864f211b600m001907m05252m6382-HISQscript.hdf5')
-#d1 = get_dat('test.hdf5_')
-d2 = get_dat('test.hdf5')
-#c = 'P5_P5_RW_RW_d_d_k0.08574_m0.001907_p000'
+def compare_corrs(d1, d2):
+    for c in d2.keys():
+        for i in range(len(d2[c])):
+            if not np.array_equal(d1[c][i],d2[c][i]):
+                print(i)
+                print(c)
+                print(d1[c][i] - d2[c][i])
+    print('done')
 
-#print(d1[c][0])
-#print(d2[c][0])
+def main(argv):
+    if len(argv) != 2:
+        print("Two hdf5 filenames expected as args.")
+        sys.exit(1)
+    f1, f2 = argv
+    d1 = get_dat(f1)
+    d2 = get_dat(f2)
+    compare_corrs(d1, d2)
 
-for c in d2.keys():
-    #print(c)
-    for i in range(len(d2[c])):
-        #print(i)
-        ##print(d1[c][i] - d2[c][i])
-        if not np.array_equal(d1[c][i],d2[c][i]):
-            print(c)
-print('done')
+if __name__ == "__main__":
+    main(sys.argv[1:])
