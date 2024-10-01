@@ -44,11 +44,22 @@ def merge_hdf5(fname1, fname2, fmerge):
                     test = np.append(d1[key][:], d2[key][:], axis=0)
                     print('test.shape')
                     print(test.shape)
-                    f.create_dataset(name='data/'+key, 
-                             data = np.append(d1[key][:], d2[key][:], axis=0),
-                             shape = test.shape,
-                             compression='gzip', 
-                             shuffle=True)
+                    dset = f.create_dataset(name='data/'+key, 
+                               data = np.append(d1[key][:], d2[key][:], axis=0),
+                               shape = test.shape,
+                               compression='gzip', 
+                               shuffle=True) 
+
+                    # Copy attrs information.
+                    series = np.append(d1[key].attrs['series'],
+                                       d2[key].attrs['series'])
+                    traj = np.append(d1[key].attrs['trajectory'], 
+                                     d2[key].attrs['trajectory'])
+                    dset.attrs['series'] = series
+                    dset.attrs['trajectory'] = traj
+                    #print(f"{series = }")
+                    #print(f"{traj = }")
+
             #f['data/'+key][:,:] = d1[key][:].append(d2[key][:])
     
     #with h5py.File('merge.hdf5', 'r') as f:
@@ -85,6 +96,8 @@ def merge_multi(to_merge, outname="merged_complete.hdf5"):
     # Tidy up.
     if os.path.exists("merged.hdf5"):
         os.remove("merged.hdf5")
+
+    print("Merge completed")
 
 if __name__ == "__main__":
     #f1 = 'l64192f211b700m00316m0158m188-run2_804-1740_157cfgs-P5-P5.hdf5'
