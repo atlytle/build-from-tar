@@ -53,7 +53,9 @@ def process(corr_key):
               'A4-A4_T34-V4',
               'P5-P5_V1-S_T',                                    
               'P5-P5_V2-S_T',                      
-              'P5-P5_V3-S_T']
+              'P5-P5_V3-S_T',
+              'A4-T31_V3-V3_T', # P->V 
+              'P5-P5_P5-P5_T']  # P->V
     for c in icorrs:
         if corr_key.startswith(c):
             return imag_part
