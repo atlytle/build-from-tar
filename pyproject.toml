@@ -7,6 +7,9 @@ authors = [
     {name = "Andrew Lytle", email="atlytle@illinois.edu"},
 ]
 dependencies = [
+    "h5py",
+    "numpy",
+    "pyyaml",
 ]
 license = {file = "LICENSE.txt"}
 

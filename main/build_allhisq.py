@@ -4,12 +4,13 @@
 
 import os
 import sys
-import h5py
 import re
-import yaml
-import numpy as np
 from itertools import product
 from multiprocessing import Pool
+
+import h5py
+import yaml
+import numpy as np
 
 from build_from_tar.build_by_base import build_by_base3, consolidate_tsrc
 from build_from_tar.init import read_yaml, bind_params, init_dirs
